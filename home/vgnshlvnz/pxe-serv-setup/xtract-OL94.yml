@@ -1,0 +1,46 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    tarball_path: /root/os-downloads/os-tarball.tar.gz
+    checksum_file: /root/os-downloads/checksum.sha256
+    dest_directory: /var/www/html/oracle-linux
+  tasks:
+    - name: Ensure destination directory exists
+      file:
+        path: "{{ dest_directory }}"
+        state: directory
+        mode: '0755'
+
+    - name: Read the expected checksum from checksum.sha256 file
+      command: awk '{print $1}' "{{ checksum_file }}"
+      register: expected_checksum_output
+
+    - name: Calculate the SHA256 checksum of the tarball
+      command: sha256sum "{{ tarball_path }}"
+      register: calculated_checksum_output
+
+    - name: Extract the calculated checksum
+      set_fact:
+        calculated_checksum: "{{ calculated_checksum_output.stdout.split(' ')[0] }}"
+
+    - name: Extract the expected checksum
+      set_fact:
+        expected_checksum: "{{ expected_checksum_output.stdout | trim }}"
+
+    - name: Compare checksums
+      assert:
+        that:
+          - calculated_checksum == expected_checksum
+        fail_msg: "Checksum mismatch: expected {{ expected_checksum }}, but got {{ calculated_checksum }}"
+
+    - name: Extract everything under root/osfiles/linux from tarball if checksum matches
+      command: tar -xzf "{{ tarball_path }}" -C "{{ dest_directory }}" --strip-components=3 root/osfiles/linux/
+      when: calculated_checksum == expected_checksum
+      register: extraction_result
+
+    - name: Check extraction result
+      debug:
+        msg: "Extraction completed successfully."
+      when: extraction_result is changed
+

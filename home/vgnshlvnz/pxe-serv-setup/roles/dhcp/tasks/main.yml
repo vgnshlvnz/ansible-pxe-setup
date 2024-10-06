@@ -1,0 +1,23 @@
+---
+- name: Install DHCP server
+  dnf:
+    name: dhcp-server
+    state: present
+
+- name: Deploy DHCP configuration file
+  template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart DHCP service  # Correct handler name for restarting the service
+
+- name: Include DHCP service modification tasks
+  include_tasks: service.yml
+
+- name: Enable and start DHCP service after configuration
+  systemd:
+    name: dhcpd
+    enabled: yes
+    state: started

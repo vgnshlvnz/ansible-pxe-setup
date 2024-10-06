@@ -1,0 +1,23 @@
+# DHCP configuration file
+
+default-lease-time 600;
+max-lease-time 7200;
+authoritative;
+log-facility local7;
+
+#INTERFACES="ens192";
+
+# Subnet declaration for ens192 interface
+{% if ens192_ip and ens192_subnet and ens192_netmask %}
+subnet {{ ens192_subnet }} netmask {{ ens192_netmask }} {
+  range {{ ens192_range_start }} {{ ens192_range_end }};
+  option routers {{ ens192_gateway }};
+  option subnet-mask {{ ens192_netmask }};
+  option domain-name-servers {{ ens192_dns }};
+  next-server {{ ens192_tftp_server }};
+  filename "{{ ens192_bootfile }}";
+}
+{% else %}
+# No subnet declaration for ens192
+{% endif %}
+

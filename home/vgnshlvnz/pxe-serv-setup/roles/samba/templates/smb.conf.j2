@@ -1,0 +1,13 @@
+[global]
+   workgroup = WORKGROUP
+   server string = Samba Server
+   security = user
+   map to guest = Bad User
+   dns proxy = no
+
+[pxe]
+   path = /var/lib/tftpboot
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   read only = no

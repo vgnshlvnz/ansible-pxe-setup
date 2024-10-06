@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    tarball_path: /root/os-downloads/os-tarball.tar.gz  # Change this to the path of the Windows tarball
+    checksum_file: /root/os-downloads/checksum.sha256   # Change this to the path of the Windows checksum file
+    dest_directory: /var/www/html/windows          # Destination directory for Windows files
+
+  tasks:
+    - name: Ensure destination directory exists
+      file:
+        path: "{{ dest_directory }}"
+        state: directory
+        mode: '0755'
+
+    - name: Read the checksum from windows-checksum.256 file
+      slurp:
+        src: "{{ checksum_file }}"
+      register: expected_checksum
+
+    - name: Calculate the SHA256 checksum of the Windows tarball
+      community.general.sha256sum:
+        path: "{{ tarball_path }}"
+      register: calculated_checksum
+
+    - name: Compare checksums
+      assert:
+        that:
+          - "'{{ expected_checksum.content | b64decode | trim }}' == '{{ calculated_checksum.hexdigest }}'"
+        fail_msg: "Checksum mismatch: expected {{ expected_checksum.content | b64decode | trim }} but got {{ calculated_checksum.hexdigest }}"
+
+    - name: Extract only wimboot and winpe directories from tarball if checksum matches
+      command: "tar -xzf {{ tarball_path }} --strip-components=1 -C {{ dest_directory }} wimboot winpe"
+      args:
+        chdir: /tmp
+      when: "'{{ expected_checksum.content | b64decode | trim }}' == '{{ calculated_checksum.hexdigest }}'"
+      register: extraction_result
+      changed_when: extraction_result.rc == 0
+
+    - name: Check extraction result
+      debug:
+        msg: "Extraction completed successfully. Result code: {{ extraction_result.rc }}"
+      when: "'{{ expected_checksum.content | b64decode | trim }}' == '{{ calculated_checksum.hexdigest }}'"

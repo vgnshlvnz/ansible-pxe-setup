@@ -1,0 +1,18 @@
+---
+- name: Install TFTP server
+  dnf:
+    name: tftp-server
+    state: present
+
+- name: Ensure TFTP service is enabled and started
+  systemd:
+    name: tftp
+    enabled: yes
+    state: started
+
+- name: Ensure firewall allows TFTP traffic
+  firewalld:
+    service: tftp
+    permanent: yes
+    state: enabled
+    immediate: yes
