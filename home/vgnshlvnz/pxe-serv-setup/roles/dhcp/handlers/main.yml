@@ -1,0 +1,24 @@
+---
+
+- name: Reload systemd daemon
+  command: systemctl daemon-reload
+
+- name: Restart DHCP service
+  systemd:
+    name: dhcpd
+    state: restarted
+
+- name: Restart TFTP
+  systemd:
+    name: tftp
+    state: restarted
+
+- name: Restart Apache
+  systemd:
+    name: httpd
+    state: restarted
+
+- name: Restart Samba
+  systemd:
+    name: smb
+    state: restarted

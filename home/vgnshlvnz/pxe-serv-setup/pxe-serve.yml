@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  become: yes
+  vars_files:
+    - /home/vgnshlvnz/pxe-serv-setup/host_vars/localhost.yml
+
+  roles:
+    - dhcp
+
+  tasks:
+    - name: Include DHCP role
+      include_role:
+        name: dhcp
+
+    - name: Include TFTP role
+      include_role:
+        name: tftp
+
+    - name: Include Apache role
+      include_role:
+        name: apache
+
+    - name: Include Samba role
+      include_role:
+        name: samba

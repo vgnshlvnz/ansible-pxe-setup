@@ -1,0 +1,16 @@
+---
+- name: Copy original dhcpd.service to /etc/systemd/system/
+  copy:
+    src: /usr/lib/systemd/system/dhcpd.service
+    dest: /etc/systemd/system/dhcpd.service
+    backup: yes  # Backup the original in case you need to revert
+
+- name: Modify dhcpd.service to bind to ens192
+  lineinfile:
+    path: /etc/systemd/system/dhcpd.service
+    regexp: '^ExecStart='
+    line: 'ExecStart=/usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf -user dhcpd -group dhcpd --no-pid ens192'
+  notify:
+    - Reload systemd daemon
+    - Restart DHCP service
+

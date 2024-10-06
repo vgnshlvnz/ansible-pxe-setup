@@ -1,0 +1,9 @@
+ens192_ip: 10.0.0.1
+ens192_subnet: 10.0.0.0
+ens192_netmask: 255.255.255.0
+ens192_range_start: 10.0.0.100
+ens192_range_end: 10.0.0.200
+ens192_gateway: 10.0.0.1
+ens192_dns: 8.8.8.8
+ens192_tftp_server: 10.0.0.1
+ens192_bootfile: ipxe.efi

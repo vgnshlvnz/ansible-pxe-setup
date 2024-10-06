@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Restart DHCP service
+      systemd:
+        name: dhcpd
+        state: restarted
+
+    - name: Restart Apache service
+      systemd:
+        name: httpd
+        state: restarted
+
+    - name: Restart TFTP service
+      systemd:
+        name: tftp
+        state: restarted
+
+    - name: Restart Samba service
+      systemd:
+        name: smb
+        state: restarted

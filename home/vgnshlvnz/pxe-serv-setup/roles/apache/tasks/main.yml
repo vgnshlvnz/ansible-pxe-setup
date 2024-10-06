@@ -1,0 +1,17 @@
+- name: Install Apache HTTP server
+  dnf:
+    name: httpd
+    state: present
+
+- name: Ensure Apache is enabled and running
+  systemd:
+    name: httpd
+    enabled: yes
+    state: started
+
+- name: Ensure firewall allows HTTP traffic
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: yes
